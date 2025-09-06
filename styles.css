@@ -1,0 +1,79 @@
+:root{
+  --bg: radial-gradient(1200px 800px at 10% 10%, #4b1d3f 0%, #311433 40%, #1f0b25 100%);
+  --glass: hsla(325, 32%, 21%, 0.55);
+  --glass-br: hsla(340, 70%, 80%, 0.15);
+  --accent: #ec4899;
+  --accent-2: #f472b6;
+  --text: #ffe4e6;
+  --muted: #fbcfe8;
+  --ok: #22c55e;
+  --warn: #f59e0b;
+  --danger: #ef4444;
+  --shadow: 0 10px 30px rgba(76,29,149,.45);
+}
+*{box-sizing:border-box}
+html,body{height:100%;}
+body{
+  margin:0; font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Helvetica,Arial,sans-serif;
+  color:var(--text); background:var(--bg); overflow-x:hidden;
+}
+.wrap{min-height:100%; display:grid; place-items:center; padding:32px}
+.card{
+  width:min(980px, 100%); background:var(--glass); border:1px solid var(--glass-br);
+  border-radius:24px; box-shadow:var(--shadow); backdrop-filter: blur(18px) saturate(120%);
+  position:relative; overflow:hidden;
+}
+.ribbon{
+  position:absolute; inset:auto -40px 0 auto; transform:rotate(-18deg) translateY(40%);
+  background:linear-gradient(90deg, var(--accent), var(--accent-2));
+  color:#4b0d37; padding:.35rem 2.5rem; font-weight:800; letter-spacing:.06em;
+  box-shadow:0 8px 24px rgba(236,72,153,.35);
+}
+header{display:flex; gap:16px; align-items:center; padding:24px 24px 8px 24px}
+.badge{display:inline-flex; align-items:center; gap:8px; padding:6px 10px; border-radius:999px; font-size:.85rem; background:rgba(236,72,153,.15); border:1px solid rgba(236,72,153,.35)}
+.title{font-size: clamp(1.2rem, 1rem + 1.5vw, 2.2rem); margin:4px 0 0 0; font-weight:800; letter-spacing:.02em}
+.subtitle{margin:6px 0 0 0; color:var(--muted)}
+
+.content{padding:8px 24px 24px 24px}
+.when{display:flex; gap:12px; flex-wrap:wrap; align-items:center; color:var(--muted); font-size:.95rem}
+.when strong{color:var(--text)}
+
+.countdown{margin:16px 0 22px 0; display:grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap:14px}
+.unit{
+  background:linear-gradient(180deg, rgba(75,29,79,.55), rgba(75,29,79,.35)); border:1px solid rgba(248,187,208,.16);
+  border-radius:18px; padding:18px 14px; text-align:center; position:relative; overflow:hidden;
+}
+.unit .label{font-size:.9rem; color:var(--muted); text-transform:uppercase; letter-spacing:.16em}
+.unit .num{font-variant-numeric: tabular-nums; font-weight:800; font-size: clamp(2rem, 6vw, 3.8rem); line-height:1; margin-top:6px}
+.unit .shadow{position:absolute; inset:auto -20% -40% -20%; height:80%; background:radial-gradient(50% 60% at 50% 100%, rgba(236,72,153,.15), rgba(244,114,182,.08), transparent 65%)}
+
+.toolbar{display:flex; flex-wrap:wrap; gap:10px; align-items:center; margin:6px 0 8px}
+button, .btn{
+  appearance:none; border:none; cursor:pointer; background:linear-gradient(180deg, var(--accent), var(--accent-2));
+  color:#4b0d37; font-weight:800; letter-spacing:.02em; padding:10px 14px; border-radius:14px; box-shadow:0 6px 18px rgba(236,72,153,.35); transition:transform .15s ease, box-shadow .2s ease;
+}
+button.secondary{
+  background:transparent; color:var(--text); border:1px solid rgba(248,187,208,.22); box-shadow:none;
+}
+button:active{transform:translateY(1px)}
+
+.after{display:none; padding:14px 24px 28px 24px}
+.after h2{font-size: clamp(1.4rem, 1rem + 2vw, 2.2rem); margin:0 0 10px 0}
+.after p{color:var(--muted); margin:8px 0 16px}
+.celebrate{display:flex; gap:10px; flex-wrap:wrap}
+.celebrate .pill{background:rgba(236,72,153,.12); color:#fecdd3; border:1px solid rgba(236,72,153,.35); padding:8px 12px; border-radius:999px; font-weight:600}
+
+footer{padding:0 24px 22px 24px; color:var(--muted); font-size:.85rem; display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap}
+
+.spark{position:absolute; inset: -40% -40% auto auto; width:420px; height:420px; background: radial-gradient(50% 50% at 70% 30%, rgba(236,72,153,.25), rgba(244,114,182,.15) 25%, transparent 60%); filter: blur(14px); pointer-events:none}
+
+/* confetti (simple & lightweight) */
+.confetti{position:fixed; inset:0; pointer-events:none; z-index:50}
+.confetti i{position:absolute; font-style:normal; will-change:transform;}
+
+@media (max-width:680px){
+  .countdown{grid-template-columns: repeat(2, minmax(0,1fr));}
+}
+@media (prefers-reduced-motion: reduce){
+  button, .unit, .ribbon, .spark{transition:none; animation:none}
+}
