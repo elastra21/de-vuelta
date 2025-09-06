@@ -128,12 +128,13 @@ footer{padding:0 24px 22px 24px; color:var(--muted); font-size:.85rem; display:f
   }
   .unit{
     padding: 18px 0px;
-}
-.num{
-  font-size: clamp(3rem, 10vw, 3.8rem) !important;
-}
-.label{
-  font-size: .85rem !important;
+  }
+  .num{
+    font-size: clamp(3rem, 10vw, 3.8rem) !important;
+  }
+  .label{
+    font-size: .85rem !important;
+  }
 }
 @media (prefers-reduced-motion: reduce){
   button, .unit, .ribbon, .spark{transition:none; animation:none}
