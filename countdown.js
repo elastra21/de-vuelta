@@ -6,21 +6,54 @@
   const TARGET_MS   = TARGET_DT.toUTC().toMillis();
 
   const els = { d:$('#d'), h:$('#h'), m:$('#m'), s:$('#s'),
-                viewCount:$('#countdownView'), viewAfter:$('#afterView'),
-                targetLA:$('#target-la'), targetLocal:$('#target-local'), tzInfo:$('#tzInfo') };
-
-  // Render de fechas en ambas zonas
-  const fmtLA = TARGET_DT.toFormat("ccc, dd LLL yyyy · hh:mm a 'PDT'");
-  const local = DateTime.fromMillis(TARGET_MS).setZone(Intl.DateTimeFormat().resolvedOptions().timeZone);
-  const fmtLocal = local.toFormat("ccc, dd LLL yyyy · hh:mm a ZZZZ");
-  els.targetLA.textContent = fmtLA;
-  els.targetLocal.textContent = fmtLocal;
-  els.tzInfo.textContent = `Zona objetivo: ${TARGET_ZONE} · Tu zona: ${local.zoneName}`;
+                viewCount:$('#countdownView'), viewAfter:$('#afterView') };
 
   // Notificaciones
   const btnNotify = $('#btnNotify');
-  const btnTest   = $('#btnTest');
-  const btnCopy   = $('#btnCopy');
+  const btnDismiss = $('#btnDismiss');
+  const btnTest = $('#btnTest'); // Puede ser null si no existe
+  const notificationRibbon = $('#notificationRibbon');
+  const ribbonText = document.querySelector('.ribbon-text');
+  const DEV = /\bdev=1\b/i.test(location.search) || localStorage.getItem('devMode') === '1';
+
+  // Si no es DEV y existe un botón de prueba en el DOM, ocultarlo
+  if(!DEV && btnTest){
+    btnTest.style.display = 'none';
+  }
+
+  if (DEV) {
+    console.log('[DEV] Modo desarrollo activo para notificaciones');
+    // Atajo para probar en consola
+    window.devNotify = (title='Prueba DEV', body='Notificación de prueba') => notifyNow(title, body);
+    // Crear botón de prueba si no existe
+    if(!btnTest){
+      const rb = document.querySelector('.ribbon-buttons');
+      if(rb){
+        const b = document.createElement('button');
+        b.id = 'btnTest';
+        b.className = 'ribbon-btn secondary';
+        b.textContent = 'Probar notificación';
+        b.addEventListener('click', ()=> {
+          if(Notification.permission !== 'granted'){
+            askPermissionAndSchedule();
+          } else {
+            notifyNow('Prueba de notificación', 'Se ve y se escucha bien.');
+          }
+        });
+        rb.appendChild(b);
+      }
+    }
+    // Atajo de teclado: Cmd/Ctrl + T
+    window.addEventListener('keydown', (e)=>{
+      if((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 't'){
+        if(Notification.permission !== 'granted'){
+          askPermissionAndSchedule();
+        } else {
+          notifyNow('Prueba de notificación', 'Se ve y se escucha bien.');
+        }
+      }
+    });
+  }
 
   const MILESTONES = [
     { ms: 24*60*60*1000, title: 'Falta 1 día 💓', body: 'Mañana por fin nos abrazamos.' },
@@ -53,32 +86,89 @@
   }
 
   function askPermissionAndSchedule(){
-    if(!('Notification' in window)) return alert('Tu navegador no soporta notificaciones.');
+    if(!('Notification' in window)) return;
     if(Notification.permission === 'granted'){
-      notifyNow('🔔 Notificaciones activadas', 'Te avisaré conforme se acerque la hora.');
       scheduleMilestones();
-      btnNotify.disabled = true; btnNotify.textContent = 'Notificaciones activadas';
+      hideNotificationRibbon();
       return;
     }
     Notification.requestPermission().then(p => {
       if(p === 'granted'){
         notifyNow('🔔 Notificaciones activadas', 'Te avisaré conforme se acerque la hora.');
         scheduleMilestones();
-        btnNotify.disabled = true; btnNotify.textContent = 'Notificaciones activadas';
+        hideNotificationRibbon();
       } else if(p === 'denied'){
+        hideNotificationRibbon();
         alert('Has bloqueado las notificaciones. Puedes habilitarlas en la configuración del navegador.');
       }
     });
   }
 
-  btnNotify.addEventListener('click', askPermissionAndSchedule);
-  btnTest.addEventListener('click', () => notifyNow('Prueba de notificación', 'Se ve y se escucha bien.'));
-  btnCopy.addEventListener('click', async () => {
-    try{
-      await navigator.clipboard.writeText(location.href);
-      toast('Enlace copiado al portapapeles');
-    }catch(e){ toast('No se pudo copiar.'); }
-  });
+  function showNotificationRibbon(){
+    if(notificationRibbon) {
+      notificationRibbon.classList.add('show');
+      // Ajustar el padding inferior del body para que el contenido no quede tapado
+      requestAnimationFrame(() => {
+        const h = notificationRibbon.offsetHeight || 0;
+        document.body.style.paddingBottom = `calc(${h}px + env(safe-area-inset-bottom))`;
+      });
+    }
+  }
+
+  function hideNotificationRibbon(){
+    if(notificationRibbon) {
+      notificationRibbon.classList.remove('show');
+      // Quitar el padding extra cuando ya no esté visible
+      document.body.style.paddingBottom = '';
+    }
+  }
+
+  // Verificar permisos al cargar la página
+  function checkNotificationPermissionOnLoad(){
+    const supportsNotifications = ('Notification' in window);
+
+    if (DEV) {
+      showNotificationRibbon();
+      if(!supportsNotifications && ribbonText){
+        ribbonText.textContent = 'ℹ️ Modo DEV: Este navegador no soporta notificaciones en este contexto.';
+      }
+      return;
+    }
+
+    if(!supportsNotifications){
+      // iOS Safari (no PWA) u otros: mostrar ribbon informativo
+      showNotificationRibbon();
+      if(ribbonText){
+        ribbonText.textContent = 'ℹ️ Tu navegador no soporta notificaciones aquí. En iPhone, añádelo a la pantalla de inicio (iOS 16.4+) para habilitarlas.';
+      }
+      btnNotify?.setAttribute('disabled','true');
+      return;
+    }
+    
+    if(Notification.permission === 'default'){
+      showNotificationRibbon();
+      btnNotify?.removeAttribute('disabled');
+    } else if(Notification.permission === 'granted'){
+      scheduleMilestones();
+      hideNotificationRibbon();
+    } else if(Notification.permission === 'denied'){
+      // Mostrar ribbon con info para guiar
+      showNotificationRibbon();
+      if(ribbonText){
+        ribbonText.textContent = '🔒 Notificaciones bloqueadas. Habilítalas en Ajustes del navegador para recibir avisos.';
+      }
+      btnNotify?.setAttribute('disabled','true');
+    }
+  }
+
+  btnNotify?.addEventListener('click', askPermissionAndSchedule);
+  btnDismiss?.addEventListener('click', hideNotificationRibbon);
+  
+  // Solo agregar el event listener si el botón existe
+  if(btnTest) {
+    btnTest.addEventListener('click', () => notifyNow('Prueba de notificación', 'Se ve y se escucha bien.'));
+  }
+
 
   // Countdown loop
   let timer = null;
@@ -93,6 +183,8 @@
     const now = Date.now();
     let diff = TARGET_MS - now;
     if(diff <= 0){
+    // if(true){
+
       // mostrar vista final
       els.viewCount.style.display = 'none';
       els.viewAfter.style.display = 'block';
@@ -123,21 +215,21 @@
     }
   }
 
-  // Compartir
-  $('#btnShare').addEventListener('click', async ()=>{
-    const shareData = { title:'Cuenta regresiva · Nuestro reencuentro', text:'Cuenta atrás para verte de nuevo', url: location.href };
-    try{
-      if(navigator.share){ await navigator.share(shareData); }
-      else{ await navigator.clipboard.writeText(shareData.url); toast('Enlace copiado para compartir'); }
-    }catch(e){ /* usuario canceló */ }
-  });
+  // // Compartir
+  // $('#btnShare').addEventListener('click', async ()=>{
+  //   const shareData = { title:'Cuenta regresiva · Nuestro reencuentro', text:'Cuenta atrás para verte de nuevo', url: location.href };
+  //   try{
+  //     if(navigator.share){ await navigator.share(shareData); }
+  //     else{ await navigator.clipboard.writeText(shareData.url); toast('Enlace copiado para compartir'); }
+  //   }catch(e){ /* usuario canceló */ }
+  // });
 
-  // Mostrar nuevamente el contador (para pruebas)
-  $('#btnReplay').addEventListener('click', ()=>{
-    $('#afterView').style.display='none';
-    $('#countdownView').style.display='block';
-    start();
-  });
+  // // Mostrar nuevamente el contador (para pruebas)
+  // $('#btnReplay').addEventListener('click', ()=>{
+  //   $('#afterView').style.display='none';
+  //   $('#countdownView').style.display='block';
+  //   start();
+  // });
 
   // Utilidades UI
   function $(q){ return document.querySelector(q); }
@@ -180,4 +272,7 @@
   } else {
     start();
   }
+  
+  // Verificar permisos de notificación al cargar
+  checkNotificationPermissionOnLoad();
 })();
