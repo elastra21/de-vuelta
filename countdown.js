@@ -8,6 +8,27 @@
   const els = { d:$('#d'), h:$('#h'), m:$('#m'), s:$('#s'),
                 viewCount:$('#countdownView'), viewAfter:$('#afterView') };
 
+  // Frases aleatorias para el subtítulo
+  const SUBTITLE_EL = document.getElementById('subtitleRandom');
+  if (SUBTITLE_EL) {
+    const phrases = [
+      'Cuestión de tiempo, preciosa 👀',
+      'Cada segundo nos acerca más ✨',
+      'El tiempo corre a nuestro favor ⏳',
+      'Ya casi nos abrazamos 🤗',
+      'Ya casi nos damos besos con sabor a Cerveza ❤️',
+      'Falta poquito, mi mapacha 🦝',
+      'LLegando no te pararé de consentir 🥰',
+      'Una cuenta regresiva para dos 💞',
+      'Preparando el abrazo más largo 💋',
+      'Nuestra historia continúa en... 3, 2, 1 💖',
+      "Me voy a pegar con cola loca a ti 🌚",
+      "Te voy a dar masaje hasta que se me caigan las manos 👹"
+    ];
+    const pick = phrases[Math.floor(Math.random()*phrases.length)];
+    SUBTITLE_EL.textContent = pick;
+  }
+
   // Notificaciones
   const btnNotify = $('#btnNotify');
   const btnDismiss = $('#btnDismiss');
@@ -15,6 +36,8 @@
   const notificationRibbon = $('#notificationRibbon');
   const ribbonText = document.querySelector('.ribbon-text');
   const DEV = /\bdev=1\b/i.test(location.search) || localStorage.getItem('devMode') === '1';
+  // Flag para forzar el estado final de la cuenta
+  const FIN = /\bfin=1\b/i.test(location.search) || localStorage.getItem('finMode') === '1';
 
   // Si no es DEV y existe un botón de prueba en el DOM, ocultarlo
   if(!DEV && btnTest){
@@ -126,6 +149,12 @@
   // Verificar permisos al cargar la página
   function checkNotificationPermissionOnLoad(){
     const supportsNotifications = ('Notification' in window);
+
+    // Si está en modo FIN, no mostramos el ribbon ni pedimos permisos
+    if (FIN) {
+      hideNotificationRibbon();
+      return;
+    }
 
     if (DEV) {
       showNotificationRibbon();
@@ -266,9 +295,11 @@
   }
 
   // Inicio
-  if(Date.now() >= TARGET_MS){
+  if (FIN || Date.now() >= TARGET_MS){
     $('#countdownView').style.display='none';
     $('#afterView').style.display='block';
+    // Mostrar confetti también en modo FIN para ver la sorpresa
+    confetti();
   } else {
     start();
   }
