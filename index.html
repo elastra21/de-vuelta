@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Cuenta regresiva · Nuestro reencuentro</title>
+  <meta name="theme-color" content="#e11d48" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="apple-touch-icon" href="icon.svg" />
+  <link rel="icon" href="icon.svg" type="image/svg+xml" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Playfair+Display:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/luxon@3/build/global/luxon.min.js"></script>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <!-- <span class="ribbon">KL → México</span> -->
+      <div class="spark" aria-hidden="true"></div>
+      <header>
+        <!-- <div class="badge">Para mi amor en México</div> -->
+      </header>
+      <div class="content" id="countdownView">
+        <h1 class="title">Cuenta regresiva</h1>
+        <div class="subtitle">Para volverte a ver 🖤</div>
+
+       
+
+        <section class="countdown" aria-live="polite">
+          <div class="unit">
+            <div class="label">DÍAS</div>
+            <div class="num" id="d">—</div>
+            <div class="shadow"></div>
+          </div>
+          <div class="unit">
+            <div class="label">HORAS</div>
+            <div class="num" id="h">—</div>
+            <div class="shadow"></div>
+          </div>
+          <div class="unit">
+            <div class="label">MIN</div>
+            <div class="num" id="m">—</div>
+            <div class="shadow"></div>
+          </div>
+          <div class="unit">
+            <div class="label">SEG</div>
+            <div class="num" id="s">—</div>
+            <div class="shadow"></div>
+          </div>
+        </section>
+
+         <p class="subtitle">Cuestión de tiempo preciosa 👀</p>
+      </div>
+
+      <div class="after" id="afterView">
+        <h2>¡Ya llegué, pechocha!</h2>
+        <p>Todo este tiempo te extrañé muchísimo. Cada momento que estuve en Malasia sólo pensaba en ti. En estar físicamente en el mismo lugar que tú. Te amo y ahora que estoy aquí sólo estaré para consentirte, amarte, besarte y disfrutar cada segundo que esté aquí. Juntos sé que viviremos más momentos en los que viaje pero sé que juntos lo pasaremos, algunos serán sólos otros a tu lado. pero juntos hasta el fin del mundo. Gracias por haber estado. Por siempre haber buscado el tiempo para que la distancia se sintiera menor. Eres esa persona intensa como mi café con la que no me siento raro siendo yo</p>
+        <div class="celebrate">
+          <span class="pill">Abrazos 🤗</span>
+          <span class="pill">Besos 💋</span>
+          <span class="pill">Aventuras ✨</span>
+          <span class="pill">Amor ❤️</span>
+        </div>
+        <!-- <div class="toolbar" style="margin-top:14px">
+          <button id="btnReplay" class="secondary">Volver a mostrar la cuenta</button>
+          <button id="btnShare">Compartir</button>
+        </div> -->
+      </div>
+
+      <footer>
+        <!-- <div>Hecho con 💗 para E.L.W.</div> -->
+      </footer>
+    </div>
+    <div class="confetti" id="confetti" aria-hidden="true"></div>
+    
+    <!-- Ribbon de notificaciones fijo -->
+    <div class="notification-ribbon" id="notificationRibbon">
+      <div class="ribbon-content">
+        <span class="ribbon-text">💖 ¿Quieres recibir notificaciones cuando se acerque la hora?</span>
+        <div class="ribbon-buttons">
+          <button id="btnNotify" class="ribbon-btn primary">🔔 Sí, por favor</button>
+          <button id="btnDismiss" class="ribbon-btn secondary">✕ No gracias</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="countdown.js"></script>
+</body>
+</html>
