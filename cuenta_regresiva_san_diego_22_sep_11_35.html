@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Cuenta regresiva · Regreso a México</title>
+  <meta name="theme-color" content="#0ea5e9" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/luxon@3/build/global/luxon.min.js"></script>
+  <style>
+    :root{
+      --bg: radial-gradient(1200px 800px at 10% 10%, #1e293b 0%, #0f172a 40%, #0b1221 100%);
+      --glass: hsla(215, 65%, 16%, 0.55);
+      --glass-br: hsla(200, 100%, 80%, 0.15);
+      --accent: #0ea5e9;
+      --accent-2: #22d3ee;
+      --text: #e5f0ff;
+      --muted: #90a4bf;
+      --ok: #22c55e;
+      --warn: #f59e0b;
+      --danger: #ef4444;
+      --shadow: 0 10px 30px rgba(2,8,23,.45);
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%;}
+    body{
+      margin:0; font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Helvetica,Arial,sans-serif;
+      color:var(--text); background:var(--bg); overflow-x:hidden; 
+    }
+    .wrap{min-height:100%; display:grid; place-items:center; padding:32px}
+    .card{
+      width:min(980px, 100%); background:var(--glass); border:1px solid var(--glass-br); 
+      border-radius:24px; box-shadow:var(--shadow); backdrop-filter: blur(18px) saturate(120%);
+      position:relative; overflow:hidden;
+    }
+    .ribbon{
+      position:absolute; inset:auto -40px 0 auto; transform:rotate(-18deg) translateY(40%);
+      background:linear-gradient(90deg, var(--accent), var(--accent-2));
+      color:#06131f; padding:.35rem 2.5rem; font-weight:800; letter-spacing:.06em; 
+      box-shadow:0 8px 24px rgba(14,165,233,.35);
+    }
+    header{display:flex; gap:16px; align-items:center; padding:24px 24px 8px 24px}
+    .badge{display:inline-flex; align-items:center; gap:8px; padding:6px 10px; border-radius:999px; font-size:.85rem; background:rgba(34,211,238,.15); border:1px solid rgba(34,211,238,.35)}
+    .title{font-size: clamp(1.2rem, 1rem + 1.5vw, 2.2rem); margin:4px 0 0 0; font-weight:800; letter-spacing:.02em}
+    .subtitle{margin:6px 0 0 0; color:var(--muted)}
+
+    .content{padding:8px 24px 24px 24px}
+    .when{display:flex; gap:12px; flex-wrap:wrap; align-items:center; color:var(--muted); font-size:.95rem}
+    .when strong{color:var(--text)}
+
+    .countdown{margin:16px 0 22px 0; display:grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap:14px}
+    .unit{
+      background:linear-gradient(180deg, rgba(2,6,23,.55), rgba(2,6,23,.35)); border:1px solid rgba(148,163,184,.16);
+      border-radius:18px; padding:18px 14px; text-align:center; position:relative; overflow:hidden;
+    }
+    .unit .label{font-size:.9rem; color:var(--muted); text-transform:uppercase; letter-spacing:.16em}
+    .unit .num{font-variant-numeric: tabular-nums; font-weight:800; font-size: clamp(2rem, 6vw, 3.8rem); line-height:1; margin-top:6px}
+    .unit .shadow{position:absolute; inset:auto -20% -40% -20%; height:80%; background:radial-gradient(50% 60% at 50% 100%, rgba(14,165,233,.15), rgba(34,211,238,.08), transparent 65%)}
+
+    .toolbar{display:flex; flex-wrap:wrap; gap:10px; align-items:center; margin:6px 0 8px}
+    button, .btn{
+      appearance:none; border:none; cursor:pointer; background:linear-gradient(180deg, rgba(14,165,233,.95), rgba(34,211,238,.95));
+      color:#07202c; font-weight:800; letter-spacing:.02em; padding:10px 14px; border-radius:14px; box-shadow:0 6px 18px rgba(14,165,233,.35); transition:transform .15s ease, box-shadow .2s ease;
+    }
+    button.secondary{
+      background:transparent; color:var(--text); border:1px solid rgba(148,163,184,.22); box-shadow:none;
+    }
+    button:active{transform:translateY(1px)}
+
+    .notices{display:flex; flex-wrap:wrap; gap:10px; margin:10px 0; color:var(--muted); font-size:.9rem}
+    .chip{border:1px dashed rgba(148,163,184,.35); padding:6px 10px; border-radius:12px}
+
+    .after{display:none; padding:14px 24px 28px 24px}
+    .after h2{font-size: clamp(1.4rem, 1rem + 2vw, 2.2rem); margin:0 0 10px 0}
+    .after p{color:var(--muted); margin:8px 0 16px}
+    .celebrate{display:flex; gap:10px; flex-wrap:wrap}
+    .celebrate .pill{background:rgba(34,197,94,.12); color:#86efac; border:1px solid rgba(34,197,94,.35); padding:8px 12px; border-radius:999px; font-weight:600}
+
+    footer{padding:0 24px 22px 24px; color:var(--muted); font-size:.85rem; display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap}
+
+    .spark{position:absolute; inset: -40% -40% auto auto; width:420px; height:420px; background: radial-gradient(50% 50% at 70% 30%, rgba(34,211,238,.25), rgba(14,165,233,.15) 25%, transparent 60%); filter: blur(14px); pointer-events:none}
+
+    /* confetti (simple & lightweight) */
+    .confetti{position:fixed; inset:0; pointer-events:none; z-index:50}
+    .confetti i{position:absolute; font-style:normal; will-change:transform;}
+
+    @media (max-width:680px){
+      .countdown{grid-template-columns: repeat(2, minmax(0,1fr));}
+    }
+    @media (prefers-reduced-motion: reduce){
+      button, .unit, .ribbon, .spark{transition:none; animation:none}
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <span class="ribbon">✈️ KL → San Diego</span>
+      <div class="spark" aria-hidden="true"></div>
+      <header>
+        <div class="badge">Regreso a México · Llegada a San Diego</div>
+      </header>
+      <div class="content" id="countdownView">
+        <h1 class="title">Cuenta regresiva para el aterrizaje</h1>
+        <p class="subtitle">Después de 2 meses en Malasia, ¡ya casi estás en casa!</p>
+
+        <div class="when" id="whenRow">
+          <div>Fecha objetivo (San Diego): <strong id="target-la"></strong></div>
+          <div>Tu hora local: <strong id="target-local"></strong></div>
+        </div>
+
+        <section class="countdown" aria-live="polite">
+          <div class="unit">
+            <div class="label">DÍAS</div>
+            <div class="num" id="d">—</div>
+            <div class="shadow"></div>
+          </div>
+          <div class="unit">
+            <div class="label">HORAS</div>
+            <div class="num" id="h">—</div>
+            <div class="shadow"></div>
+          </div>
+          <div class="unit">
+            <div class="label">MIN</div>
+            <div class="num" id="m">—</div>
+            <div class="shadow"></div>
+          </div>
+          <div class="unit">
+            <div class="label">SEG</div>
+            <div class="num" id="s">—</div>
+            <div class="shadow"></div>
+          </div>
+        </section>
+
+        <div class="toolbar">
+          <button id="btnNotify">🔔 Permitir notificaciones</button>
+          <button class="secondary" id="btnTest">Probar notificación</button>
+          <button class="secondary" id="btnCopy">Copiar como app (PWA próximamente)</button>
+        </div>
+
+        <div class="notices">
+          <span class="chip">Sugerencia: puedes dejar esta pestaña abierta para recibir avisos.</span>
+          <span class="chip">Señales: 24 h · 1 h · 10 min antes del arribo</span>
+        </div>
+      </div>
+
+      <div class="after" id="afterView">
+        <h2>🎉 ¡Bienvenido a San Diego!</h2>
+        <p>Terminó la cuenta regresiva. Ojalá el vuelo haya sido cómodo. Manda mensaje cuando aterrices 😉</p>
+        <div class="celebrate">
+          <span class="pill">Tacos 🌮</span>
+          <span class="pill">Café ☕️</span>
+          <span class="pill">Familia ❤️</span>
+          <span class="pill">Surf 🏄</span>
+        </div>
+        <div class="toolbar" style="margin-top:14px">
+          <button id="btnReplay" class="secondary">Volver a mostrar la cuenta</button>
+          <button id="btnShare">Compartir</button>
+        </div>
+      </div>
+
+      <footer>
+        <div id="tzInfo">Zona objetivo: America/Los_Angeles</div>
+        <div>Hecho con 💙 para E.L.W.</div>
+      </footer>
+    </div>
+    <div class="confetti" id="confetti" aria-hidden="true"></div>
+  </div>
+
+<script>
+(function(){
+  const { DateTime } = luxon;
+  // 👉 Ajuste importante: asumimos que 22 Sep a las 11:35 es hora local de San Diego (America/Los_Angeles).
+  // Si prefieres que sea hora de Malasia, cambia TARGET_ZONE a 'Asia/Kuala_Lumpur'.
+  const TARGET_ZONE = 'America/Los_Angeles';
+  const TARGET_DT   = DateTime.fromObject({ year: 2025, month: 9, day: 22, hour: 11, minute: 35 }, { zone: TARGET_ZONE });
+  const TARGET_MS   = TARGET_DT.toUTC().toMillis();
+
+  const els = { d:$('#d'), h:$('#h'), m:$('#m'), s:$('#s'),
+                viewCount:$('#countdownView'), viewAfter:$('#afterView'),
+                targetLA:$('#target-la'), targetLocal:$('#target-local'), tzInfo:$('#tzInfo') };
+
+  // Render de fechas en ambas zonas
+  const fmtLA = TARGET_DT.toFormat("ccc, dd LLL yyyy · hh:mm a 'PDT'" );
+  const local = DateTime.fromMillis(TARGET_MS).setZone(Intl.DateTimeFormat().resolvedOptions().timeZone);
+  const fmtLocal = local.toFormat("ccc, dd LLL yyyy · hh:mm a ZZZZ");
+  els.targetLA.textContent = fmtLA;
+  els.targetLocal.textContent = fmtLocal;
+  els.tzInfo.textContent = `Zona objetivo: ${TARGET_ZONE} · Tu zona: ${local.zoneName}`;
+
+  // Notificaciones
+  const btnNotify = $('#btnNotify');
+  const btnTest   = $('#btnTest');
+  const btnCopy   = $('#btnCopy');
+
+  const MILESTONES = [
+    { ms: 24*60*60*1000, title: 'Falta 1 día ✈️', body: 'Mañana aterrizas en San Diego. ¿Maleta lista?' },
+    { ms: 60*60*1000,     title: 'Falta 1 hora ⏳', body: 'Ya casi, ¡qué emoción!' },
+    { ms: 10*60*1000,     title: 'Faltan 10 minutos 🔟', body: 'Ajusta cinturón, modo avión ON.' },
+  ];
+
+  function notifyNow(title, body){
+    if(!('Notification' in window)) return alert('Tu navegador no soporta notificaciones');
+    if(Notification.permission === 'granted'){
+      try{
+        new Notification(title, { body, tag:'countdown', renotify:true });
+      }catch(e){ console.warn(e); }
+    }
+  }
+
+  function scheduleMilestones(){
+    const now = Date.now();
+    const remaining = TARGET_MS - now;
+    MILESTONES.forEach(m => {
+      const triggerIn = remaining - m.ms;
+      if(triggerIn > 0){
+        setTimeout(() => notifyNow(m.title, m.body), triggerIn);
+      }
+    });
+    // Notificación final
+    if(remaining > 0) setTimeout(() => {
+      notifyNow('¡Bienvenido a San Diego! 🎉', 'La cuenta llegó a cero.');
+    }, remaining);
+  }
+
+  function askPermissionAndSchedule(){
+    if(!('Notification' in window)) return alert('Tu navegador no soporta notificaciones.');
+    if(Notification.permission === 'granted'){
+      notifyNow('🔔 Notificaciones activadas', 'Te avisaré conforme se acerque la hora.');
+      scheduleMilestones();
+      btnNotify.disabled = true; btnNotify.textContent = 'Notificaciones activadas';
+      return;
+    }
+    Notification.requestPermission().then(p => {
+      if(p === 'granted'){
+        notifyNow('🔔 Notificaciones activadas', 'Te avisaré conforme se acerque la hora.');
+        scheduleMilestones();
+        btnNotify.disabled = true; btnNotify.textContent = 'Notificaciones activadas';
+      } else if(p === 'denied'){
+        alert('Has bloqueado las notificaciones. Puedes habilitarlas en la configuración del navegador.');
+      }
+    });
+  }
+
+  btnNotify.addEventListener('click', askPermissionAndSchedule);
+  btnTest.addEventListener('click', () => notifyNow('Prueba de notificación', 'Se ve y se escucha bien.'));
+  btnCopy.addEventListener('click', async () => {
+    try{
+      await navigator.clipboard.writeText(location.href);
+      toast('Enlace copiado al portapapeles');
+    }catch(e){ toast('No se pudo copiar.'); }
+  });
+
+  // Countdown loop
+  let timer = null;
+  function start(){
+    stop();
+    tick();
+    timer = setInterval(tick, 1000);
+  }
+  function stop(){ if(timer) clearInterval(timer); }
+
+  function tick(){
+    const now = Date.now();
+    let diff = TARGET_MS - now;
+    if(diff <= 0){
+      // mostrar vista final
+      els.viewCount.style.display = 'none';
+      els.viewAfter.style.display = 'block';
+      stop();
+      confetti();
+      return;
+    }
+    const d = Math.floor(diff / 86_400_000); diff -= d*86_400_000;
+    const h = Math.floor(diff / 3_600_000);  diff -= h*3_600_000;
+    const m = Math.floor(diff / 60_000);     diff -= m*60_000;
+    const s = Math.floor(diff / 1_000);
+
+    setNum(els.d, d);
+    setNum(els.h, h);
+    setNum(els.m, m);
+    setNum(els.s, s);
+  }
+
+  function setNum(el, n){
+    const val = String(n).padStart(2,'0');
+    if(el.textContent !== val){
+      el.textContent = val;
+      el.animate([
+        { transform:'translateY(0)', filter:'blur(0px)' },
+        { transform:'translateY(-6px)', filter:'blur(0.6px)' },
+        { transform:'translateY(0)', filter:'blur(0px)' }
+      ], { duration: 260, easing:'ease-out' });
+    }
+  }
+
+  // Compartir
+  $('#btnShare').addEventListener('click', async ()=>{
+    const shareData = { title:'Cuenta regresiva · San Diego', text:'Mi countdown de regreso a México', url: location.href };
+    try{
+      if(navigator.share){ await navigator.share(shareData); }
+      else{ await navigator.clipboard.writeText(shareData.url); toast('Enlace copiado para compartir'); }
+    }catch(e){ /* usuario canceló */ }
+  });
+
+  // Mostrar nuevamente el contador (para pruebas)
+  $('#btnReplay').addEventListener('click', ()=>{
+    $('#afterView').style.display='none';
+    $('#countdownView').style.display='block';
+    start();
+  });
+
+  // Utilidades UI
+  function $(q){ return document.querySelector(q); }
+  function toast(msg){
+    const t = document.createElement('div');
+    t.textContent = msg;
+    t.style.cssText = 'position:fixed;left:50%;bottom:22px;transform:translateX(-50%);padding:10px 14px;border-radius:12px;background:rgba(2,6,23,.9);color:#e5f0ff;border:1px solid rgba(148,163,184,.35);z-index:60;box-shadow:0 8px 24px rgba(0,0,0,.35);';
+    document.body.appendChild(t);
+    setTimeout(()=> t.remove(), 1800);
+  }
+
+  // Confetti ligero con emojis
+  function confetti(){
+    const host = $('#confetti');
+    host.innerHTML = '';
+    const N = 120;
+    for(let i=0;i<N;i++){
+      const e = document.createElement('i');
+      e.textContent = ['🎉','✨','🎊','🛬','🌮'][Math.floor(Math.random()*5)];
+      const size = 16 + Math.random()*18;
+      e.style.left = Math.random()*100 + 'vw';
+      e.style.top = '-10vh';
+      e.style.fontSize = size + 'px';
+      e.style.opacity = String(0.7 + Math.random()*0.3);
+      const dx = (Math.random() - .5) * 40;
+      const dur = 3.5 + Math.random()*2.5;
+      e.animate([
+        { transform:`translate(0,0) rotate(0deg)` },
+        { transform:`translate(${dx}vw, 110vh) rotate(${Math.random()*360}deg)` }
+      ], { duration: dur*1000, easing:'cubic-bezier(.2,.8,.2,1)', iterations:1, delay: Math.random()*1200 });
+      host.appendChild(e);
+      setTimeout(()=> e.remove(), dur*1000 + 1500);
+    }
+  }
+
+  // Inicio
+  // Si ya pasó la fecha, mostrar vista final desde el arranque
+  if(Date.now() >= TARGET_MS){
+    $('#countdownView').style.display='none';
+    $('#afterView').style.display='block';
+  } else {
+    start();
+  }
+})();
+</script>
+</body>
+</html>
